@@ -1,3 +1,5 @@
+module First where
+
 import Data.List
 import Data.Char
 import Data.List.Split
@@ -12,13 +14,12 @@ data InternalMap = InternalMap { x :: Int
                      , value :: Char 
                      } deriving (Show)
 
-readFullMap :: String -> ExternalMap
-readFullMap encodedMap = map readInternalMap $ splitIntoEncodedMaps message
+readFullMap = map readInternalMap $ splitIntoEncodedMaps message
 
 readCoordinates :: String -> (String, Int, Int)
-readCoordinates map =
+readCoordinates singleMap =
     let
-       (rest, coord) = readTillPairEnd map
+       (rest, coord) = readTillPairEnd singleMap
        (rest', coord') = readTillPairEnd rest
     in (rest', coord, coord')
 

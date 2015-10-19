@@ -27,14 +27,14 @@ returnMapWithValue n = if value (readFullMap !! n) == 'o'
 							then Just(readFullMap !! n)
 							else  Nothing
 
-returnMapWithValue' :: InternalMap -> Char -> Maybe (InternalMap, Maybe Int)
+returnMapWithValue' :: InternalMap -> Char -> Maybe InternalMap
 returnMapWithValue' n valueToCheck = if value n == valueToCheck 
-									 then Just (n, Data.List.elemIndex n readFullMap)
+									 then Just n --Data.List.elemIndex n readFullMap)
 									 else Nothing
-
+-- && (Data.List.length parsedValues) <= 4
 isBoardValid :: Bool
-isBoardValid = if not (areAnyCollidedValues || areAnySuccessiveMoveValuesEqual) && (Data.List.length parsedValues) <= 4
- 				then True else isWinner
+isBoardValid = (not areAnyCollidedValues || not areAnySuccessiveMoveValuesEqual) && isWinner
+
 
 isWinner :: Bool
 isWinner = 
@@ -43,25 +43,18 @@ isWinner =
 		justXMap = Prelude.filter (\n-> isJust n) $ xMap
 		oMap = Prelude.map (\n-> returnMapWithValue' n 'o') $ readFullMap
 		justOMap = Prelude.filter (\n-> isJust n) $ oMap
-		bool = if Prelude.length justXMap >= 3 || Prelude.length justOMap >= 3 then True else False
-	in bool
+		isOwinner = checkWinner (Prelude.map (\n-> fromJust n) justOMap)
+		isXwinner = checkWinner (Prelude.map (\n-> fromJust n) justXMap)
+	in if isOwinner && isXwinner 
+	   then False 
+	   else if isOwinner || isXwinner
+	   then True
+	   else False
 
---myGroup' :: (Eq a, Ord a) => [a] -> [a]
---myGroup' = Prelude.map (\l -> l) . groupBy ((==) `on` a)
-
---Prelude.filter(\n-> (length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) readFullMap) jei yra tai laimetojas stacias
---Prelude.filter(\n-> (length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) readFullMap) jei yra laimetojas gulscias
---Prelude.filter (\i1 -> x i1 == y i1) readFullMap is desines i kaire
---Prelude.filter (\i1 -> x i1 + y i1 == 2) readFullMap readFullMap)
-
---checkWinner :: [Maybe (InternalMap, Maybe Int)] -> Bool
---checkWinner
-
-
---patikrint ar nera susidurimu
---patikrint ar nera vienodu values is eiles ejimuose
---tada paziuret ar yra x ar o daugiau nei trys, jei yra, paimt ir patikrint
---paimi visus su o ar x, isrikiuoti, jei randi tris lygias x tada staciai laimejo
---jei tris lygius y tada laimejo gulsciai, 
---istrizai is desines i kaire jei randi tris lygias
---koord 22 11 00, is kaires i desine 02 11 20
+checkWinner :: [InternalMap] -> Bool
+checkWinner internalMaps 
+				| Prelude.length (Prelude.filter (\i1 -> x i1 == y i1) readFullMap) == 3 = True
+				| Prelude.length (Prelude.filter (\i1 -> x i1 + y i1 == 2) readFullMap) == 3 = True
+				| Prelude.length (Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) readFullMap)) == 1 = True
+				| Prelude.length (Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) readFullMap)) == 1 = True
+				| otherwise = False

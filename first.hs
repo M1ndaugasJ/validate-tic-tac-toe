@@ -6,8 +6,8 @@ import Data.List.Split
 
 message :: String
 --message = "l[m[x 2; y 2; v \"x\"]; m[x 2; y 1; v \"x\"]; m[x 2; y 0; v \"x\"]; m[x 0; y 0; v \"o\"];m[x 0; y 1; v \"x\"]; m[x 0; y 2; v \"x\"]]"
-message = "l[m[x 0; y 0; v \"x\"]; m[x 1; y 1; v \"x\"]; m[x 0; y 2; v \"x\"]; m[x 2; y 2; v \"x\"]; m[x 1; y 2; v \"x\"]]"
-
+--message = "l[m[\"x\" 1; \"y\" 0; \"v\" \"x\"]; m[\"x\" 1; \"y\" 2; \"v\" \"o\"]; m[\"x\" 1; \"y\" 1; \"v\" \"x\"]; m[\"x\" 0; \"y\" 0; \"v\" \"o\"]; m[\"x\" 2; \"y\" 0; \"v\" \"x\"]; m[\"x\" 2; \"y\" 1; \"v\" \"o\"]; m[\"x\" 0; \"y\" 1; \"v\" \"x\"]; m[\"x\" 2; \"y\" 2; \"v\" \"o\"]; m[\"x\" 1; \"y\" 1; \"v\" \"x\"]]"
+message = "l[m[\"x\" 0; \"y\" 2; \"v\" \"x\"]; m[\"x\" 0; \"y\" 0; \"v\" \"o\"]; m[\"x\" 2; \"y\" 0; \"v\" \"x\"]; m[\"x\" 1; \"y\" 1; \"v\" \"o\"]; m[\"x\" 1; \"y\" 2; \"v\" \"x\"]; m[\"x\" 1; \"y\" 0; \"v\" \"o\"]; m[\"x\" 2; \"y\" 2; \"v\" \"x\"]; m[\"x\" 2; \"y\" 1; \"v\" \"o\"]; m[\"x\" 0; \"y\" 1; \"v\" \"x\"]]"
 type ExternalMap = [InternalMap]
 type Coord = Int
 data InternalMap = InternalMap { x :: Coord  
@@ -34,12 +34,12 @@ readCoordinates singleMap =
 readTillPairEnd :: String -> (String, Coord)
 readTillPairEnd encodedMap = 
     let
-        string = dropWhile (reqNum) encodedMap
+        string = dropWhile (\n -> n /= '0' && n /= '1' && n /= '2') encodedMap
         coord = digitToInt $ head string
     in (drop 1 string, coord)
 
 readValue :: String -> Char
-readValue restInternalMap = head $ dropWhile (xORo) restInternalMap
+readValue restInternalMap = head $ dropWhile (\n -> n /= 'x' && n /= 'o') restInternalMap
 
 readInternalMap :: String -> InternalMap
 readInternalMap encodedMap =
@@ -51,14 +51,3 @@ readInternalMap encodedMap =
 splitIntoEncodedMaps :: String -> [String]
 splitIntoEncodedMaps "" = error "empty string passed"
 splitIntoEncodedMaps s = splitOn "m" (drop 3 (filter (/=' ') (s)))
-
-xORo :: Char -> Bool
-xORo 'x' = False
-xORo 'o' = False
-xORo _ = True
-
-reqNum :: Char -> Bool
-reqNum '0' = False
-reqNum '1' = False
-reqNum '2' = False
-reqNum _ = True

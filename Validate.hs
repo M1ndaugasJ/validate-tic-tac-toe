@@ -9,52 +9,51 @@ import Data.Function (on)
 returnCoords :: Int -> Int
 returnCoords n = x (readFullMap !! n) + y (readFullMap !! n)
 
- --x = generate (Prelude.length(readFullMap))(\n-> returnCoords n)
- --Prelude.filter(\n-> n 'x' returnIsValue) readFullMap
-
---sort $ Prelude.map (\n-> returnMapWithValue' n 'o') $ readFullMap
-
 parsedValues = Prelude.map (\n-> value n) $ readFullMap
 
 areAnyCollidedValues = Prelude.length (Data.Set.fromList readFullMap) < Prelude.length readFullMap
 areAnySuccessiveMoveValuesEqual = isInfixOf "xx" parsedValues || isInfixOf "oo" parsedValues
 
-returnIsValue :: Int -> Char -> Bool
-returnIsValue n char = value (readFullMap !! n) == char
-
-returnMapWithValue :: Int -> Maybe InternalMap
-returnMapWithValue n = if value (readFullMap !! n) == 'o' 
-							then Just(readFullMap !! n)
-							else  Nothing
-
 returnMapWithValue' :: InternalMap -> Char -> Maybe InternalMap
 returnMapWithValue' n valueToCheck = if value n == valueToCheck 
-									 then Just n --Data.List.elemIndex n readFullMap)
-									 else Nothing
--- && (Data.List.length parsedValues) <= 4
-isBoardValid :: Bool
-isBoardValid = (not areAnyCollidedValues || not areAnySuccessiveMoveValuesEqual) && isWinner
+									  then Just n
+									  else Nothing
 
-
-isWinner :: Bool
-isWinner = 
+isWinner :: Char -> Bool
+isWinner a = 
 	let
-		xMap = Prelude.map (\n-> returnMapWithValue' n 'x') $ readFullMap
-		justXMap = Prelude.filter (\n-> isJust n) $ xMap
-		oMap = Prelude.map (\n-> returnMapWithValue' n 'o') $ readFullMap
-		justOMap = Prelude.filter (\n-> isJust n) $ oMap
-		isOwinner = checkWinner (Prelude.map (\n-> fromJust n) justOMap)
-		isXwinner = checkWinner (Prelude.map (\n-> fromJust n) justXMap)
-	in if isOwinner && isXwinner 
-	   then False 
-	   else if isOwinner || isXwinner
-	   then True
-	   else False
+		valueMap = Prelude.map (\n-> returnMapWithValue' n a) $ readFullMap
+		justMap = Prelude.filter (\n-> isJust n) $ valueMap
+	in if Prelude.length justMap >= 3 
+		then isWinnerMoveLast (checkWinner (Prelude.map (\n-> fromJust n) justMap))
+		else False
 
-checkWinner :: [InternalMap] -> Bool
+isWinnerValid :: Bool -> Bool -> Bool
+isWinnerValid a b = if a && b then False else a || b
+
+isWinnerMoveLast :: [InternalMap] -> Bool
+isWinnerMoveLast a = not . Data.List.null $ Prelude.filter (\n -> n == Data.List.last readFullMap) a
+
+checkWinner :: [InternalMap] -> [InternalMap]
 checkWinner internalMaps 
-				| Prelude.length (Prelude.filter (\i1 -> x i1 == y i1) readFullMap) == 3 = True
-				| Prelude.length (Prelude.filter (\i1 -> x i1 + y i1 == 2) readFullMap) == 3 = True
-				| Prelude.length (Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) readFullMap)) == 1 = True
-				| Prelude.length (Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) readFullMap)) == 1 = True
-				| otherwise = False
+	| Prelude.length (diagonalTopRight) == 3 = diagonalTopRight
+	| Prelude.length (diagonalTopLeft) == 3 = diagonalTopLeft
+	| Prelude.length (xVertice) == 1 = xVertice !! 0
+	| Prelude.length (yVertice) == 1 = yVertice !! 0
+	| otherwise = []
+	where 
+		diagonalTopRight = Prelude.filter (\i1 -> x i1 == y i1) internalMaps 
+		diagonalTopLeft = (Prelude.filter (\i1 -> x i1 + y i1 == 2) internalMaps)
+		xVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) internalMaps)
+		yVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) internalMaps)
+
+-- checkWinner' :: [InternalMap] -> Bool
+-- checkWinner' internalMaps 
+-- 	| Prelude.length (Prelude.filter (\i1 -> x i1 == y i1) internalMaps) == 3 = True
+-- 	| Prelude.length (Prelude.filter (\i1 -> x i1 + y i1 == 2) internalMaps) == 3 = True
+-- 	| Prelude.length (Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) internalMaps)) == 1 = True
+-- 	| Prelude.length (Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) internalMaps)) == 1 = True
+-- 	| otherwise = False
+
+isBoardValid :: Bool
+isBoardValid = not (areAnyCollidedValues || areAnySuccessiveMoveValuesEqual) && isWinnerValid (isWinner 'o') (isWinner 'x')

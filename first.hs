@@ -6,7 +6,7 @@ import Data.List.Split
 
 message :: String
 --message = "l[m[\"x\" 2; \"y\" 2; \"v\" \"x\"]; m[\"x\" 2; \"y\" 1; \"v\" \"o\"]; m[\"x\" 0; \"y\" 2; \"v\" \"x\"]; m[\"x\" 2; \"y\" 0; \"v\" \"o\"]; m[\"x\" 1; \"y\" 2; \"v\" \"x\"]]";
-message = "l[m[\"x\" 2; \"y\" 0; \"v\" \"x\"]; m[\"x\" 0; \"y\" 0; \"v\" \"o\"]; m[\"x\" 1; \"y\" 1; \"v\" \"x\"]; m[\"x\" 1; \"y\" 0; \"v\" \"o\"]; m[\"x\" 0; \"y\" 2; \"v\" \"x\"]]"
+message = "l[]"
 type ExternalMap = [InternalMap]
 type Coord = Int
 data InternalMap = InternalMap  {x :: Coord  
@@ -44,6 +44,7 @@ readValue :: String -> Char
 readValue restInternalMap = head $ dropWhile (\n -> n /= 'x' && n /= 'o') restInternalMap
 
 readInternalMap :: String -> InternalMap
+readInternalMap "" = error "empty string passed"
 readInternalMap encodedMap =
     let 
         (rest, x, y) = readCoordinates encodedMap

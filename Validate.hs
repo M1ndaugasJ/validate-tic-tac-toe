@@ -29,7 +29,9 @@ isWinner a =
 		else False
 
 isWinnerValid :: Bool -> Bool -> Bool
-isWinnerValid a b = if a && b then False else a || b
+isWinnerValid a b = if (a && b) 
+					then False 
+					else True
 
 isWinnerMoveLast :: [InternalMap] -> Bool
 isWinnerMoveLast a = not . Data.List.null $ Prelude.filter (\n -> n == Data.List.last readFullMap) a
@@ -44,8 +46,8 @@ checkWinner internalMaps
 	where 
 		diagonalTopRight = Prelude.filter (\i1 -> x i1 == y i1) internalMaps 
 		diagonalTopLeft = (Prelude.filter (\i1 -> x i1 + y i1 == 2) internalMaps)
-		xVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) internalMaps)
-		yVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) internalMaps)
+		xVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) (sort internalMaps))
+		yVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) (sort internalMaps))
 
 -- checkWinner' :: [InternalMap] -> Bool
 -- checkWinner' internalMaps 
@@ -56,4 +58,6 @@ checkWinner internalMaps
 -- 	| otherwise = False
 
 isBoardValid :: Bool
-isBoardValid = not (areAnyCollidedValues || areAnySuccessiveMoveValuesEqual) && isWinnerValid (isWinner 'o') (isWinner 'x')
+isBoardValid = if not (areAnyCollidedValues || areAnySuccessiveMoveValuesEqual) && (Prelude.length readFullMap <= 4)
+				then True 
+				else not (areAnyCollidedValues || areAnySuccessiveMoveValuesEqual) && isWinnerValid (isWinner 'o') (isWinner 'x')

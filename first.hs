@@ -5,8 +5,8 @@ import Data.Char
 import Data.List.Split
 
 message :: String
---message = "l[m[\"x\" 2; \"y\" 2; \"v\" \"x\"]; m[\"x\" 2; \"y\" 1; \"v\" \"o\"]; m[\"x\" 0; \"y\" 2; \"v\" \"x\"]; m[\"x\" 2; \"y\" 0; \"v\" \"o\"]; m[\"x\" 1; \"y\" 2; \"v\" \"x\"]]";
-message = "l[]"
+message = "l[m[\"x\"; 2; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 1; \"y\"; 1; \"v\"; \"o\"]; m[\"x\"; 2; \"y\"; 1; \"v\"; \"x\"]; m[\"x\"; 1; \"y\"; 0; \"v\"; \"o\"]; m[\"x\"; 2; \"y\"; 2; \"v\"; \"x\"]; m[\"x\"; 0; \"y\"; 1; \"v\"; \"o\"]; m[\"x\"; 0; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 1; \"y\"; 2; \"v\"; \"o\"]; m[\"x\"; 0; \"y\"; 2; \"v\"; \"x\"]]";
+--message = "l[m[\"x\"; 1; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 0; \"y\"; 1; \"v\"; \"o\"]; m[\"x\"; 1; \"y\"; 2; \"v\"; \"x\"]; m[\"x\"; 2; \"y\"; 2; \"v\"; \"o\"]; m[\"x\"; 0; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 2; \"y\"; 0; \"v\"; \"o\"]; m[\"x\"; 0; \"y\"; 2; \"v\"; \"x\"]; m[\"x\"; 2; \"y\"; 1; \"v\"; \"o\"]; m[\"x\"; 2; \"y\"; 2; \"v\"; \"x\"]]"
 type ExternalMap = [InternalMap]
 type Coord = Int
 data InternalMap = InternalMap  {x :: Coord  
@@ -20,7 +20,7 @@ instance Eq InternalMap where
 instance Ord InternalMap where
     compare (InternalMap x y _) (InternalMap x1 y1 _)
          | (x == x1) && (y == y1) =  EQ
-         | x <= x1 =  LT
+         | x <= x1 && y <= y1 =  LT
          | otherwise =  GT
 
 readFullMap :: ExternalMap 
@@ -44,7 +44,7 @@ readValue :: String -> Char
 readValue restInternalMap = head $ dropWhile (\n -> n /= 'x' && n /= 'o') restInternalMap
 
 readInternalMap :: String -> InternalMap
-readInternalMap "" = error "empty string passed"
+readInternalMap [] = error "map is empty"
 readInternalMap encodedMap =
     let 
         (rest, x, y) = readCoordinates encodedMap
@@ -52,5 +52,5 @@ readInternalMap encodedMap =
     in InternalMap x y value
 
 splitIntoEncodedMaps :: String -> [String]
-splitIntoEncodedMaps "" = error "empty string passed"
+splitIntoEncodedMaps [] = error "string is empty"
 splitIntoEncodedMaps s = splitOn "m" (drop 3 (filter (/=' ') (s)))

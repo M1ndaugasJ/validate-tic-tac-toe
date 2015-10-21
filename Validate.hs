@@ -3,35 +3,30 @@ import Data.Vector
 import Data.Set
 import Data.List
 import Data.Maybe
-import Data.Function (on)
 
---value readFullMap message !! 1
 returnCoords :: Int -> Int
 returnCoords n = x (readFullMap !! n) + y (readFullMap !! n)
 
 parsedValues = Prelude.map (\n-> value n) $ readFullMap
 
-areAnyCollidedValues = Prelude.length (Data.Set.fromList readFullMap) < Prelude.length readFullMap
+areAnyCollidedValues = Prelude.length (nub readFullMap) < Prelude.length readFullMap
 areAnySuccessiveMoveValuesEqual = isInfixOf "xx" parsedValues || isInfixOf "oo" parsedValues
 
-returnMapWithValue' :: InternalMap -> Char -> Maybe InternalMap
-returnMapWithValue' n valueToCheck = if value n == valueToCheck 
-									  then Just n
-									  else Nothing
+valueMapX = Prelude.filter (\n-> value n == 'x') $ readFullMap
+valueMapO = Prelude.filter (\n-> value n == 'o') $ readFullMap
 
-isWinner :: Char -> Bool
-isWinner a = 
-	let
-		valueMap = Prelude.map (\n-> returnMapWithValue' n a) $ readFullMap
-		justMap = Prelude.filter (\n-> isJust n) $ valueMap
-	in if Prelude.length justMap >= 3 
-		then isWinnerMoveLast (checkWinner (Prelude.map (\n-> fromJust n) justMap))
-		else False
+winnerMapX = checkWinner valueMapX
+winnerMapO = checkWinner valueMapO
 
-isWinnerValid :: Bool -> Bool -> Bool
-isWinnerValid a b = if (a && b) 
-					then False 
-					else True
+isWinnerValid = if noWinner
+	then True
+	else if not areBothWinners 
+	then isWinnerMoveLast getWinner
+	else False
+
+getWinner = if Data.List.null (winnerMapX) then winnerMapO else winnerMapX 
+areBothWinners = (not . Data.List.null $ winnerMapX) && (not . Data.List.null $ winnerMapO)
+noWinner = Data.List.null (winnerMapX) && Data.List.null (winnerMapO)
 
 isWinnerMoveLast :: [InternalMap] -> Bool
 isWinnerMoveLast a = not . Data.List.null $ Prelude.filter (\n -> n == Data.List.last readFullMap) a
@@ -46,18 +41,13 @@ checkWinner internalMaps
 	where 
 		diagonalTopRight = Prelude.filter (\i1 -> x i1 == y i1) internalMaps 
 		diagonalTopLeft = (Prelude.filter (\i1 -> x i1 + y i1 == 2) internalMaps)
-		xVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) (sort internalMaps))
-		yVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) (sort internalMaps))
+		xVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) (sortBy sortByX internalMaps))
+		yVertice = Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) (sortBy sortByY internalMaps))
 
--- checkWinner' :: [InternalMap] -> Bool
--- checkWinner' internalMaps 
--- 	| Prelude.length (Prelude.filter (\i1 -> x i1 == y i1) internalMaps) == 3 = True
--- 	| Prelude.length (Prelude.filter (\i1 -> x i1 + y i1 == 2) internalMaps) == 3 = True
--- 	| Prelude.length (Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> x i1 == x i2) internalMaps)) == 1 = True
--- 	| Prelude.length (Prelude.filter(\n-> (Prelude.length n) == 3) (groupBy (\i1 i2 -> y i1 == y i2) internalMaps)) == 1 = True
--- 	| otherwise = False
+sortByX (InternalMap x y _) (InternalMap x1 y1 _) = compare x x1
+sortByY (InternalMap x y _) (InternalMap x1 y1 _) = compare y y1
 
 isBoardValid :: Bool
-isBoardValid = if not (areAnyCollidedValues || areAnySuccessiveMoveValuesEqual) && (Prelude.length readFullMap <= 4)
-				then True 
-				else not (areAnyCollidedValues || areAnySuccessiveMoveValuesEqual) && isWinnerValid (isWinner 'o') (isWinner 'x')
+isBoardValid = if Prelude.length (nub readFullMap) >= 3 
+	then not areAnyCollidedValues && not areAnySuccessiveMoveValuesEqual && isWinnerValid
+	else not areAnyCollidedValues && not areAnySuccessiveMoveValuesEqual

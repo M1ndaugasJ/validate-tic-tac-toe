@@ -6,7 +6,7 @@ import Data.List.Split
 
 message :: String
 --message = "l[m[\"x\"; 2; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 1; \"y\"; 1; \"v\"; \"o\"]; m[\"x\"; 2; \"y\"; 1; \"v\"; \"x\"]; m[\"x\"; 1; \"y\"; 0; \"v\"; \"o\"]; m[\"x\"; 2; \"y\"; 2; \"v\"; \"x\"]; m[\"x\"; 0; \"y\"; 1; \"v\"; \"o\"]; m[\"x\"; 0; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 1; \"y\"; 2; \"v\"; \"o\"]; m[\"x\"; 0; \"y\"; 2; \"v\"; \"x\"]]";
-message = "l[m[\"x\"; 2; \"y\"; 1; \"v\"; \"x\"]; m[\"x\"; 2; \"y\"; 0; \"v\"; \"o\"]; m[\"x\"; 2; \"y\"; 2; \"v\"; \"x\"]; m[\"x\"; 0; \"y\"; 1; \"v\"; \"o\"]; m[\"x\"; 1; \"y\"; 2; \"v\"; \"x\"]; m[\"x\"; 0; \"y\"; 0; \"v\"; \"o\"]; m[\"x\"; 1; \"y\"; 1; \"v\"; \"x\"]; m[\"x\"; 0; \"y\"; 2; \"v\"; \"o\"]; m[\"x\"; 1; \"y\"; 0; \"v\"; \"x\"]]"
+message= "l[m[\"x\"; 2; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 2; \"y\"; 1; \"v\"; \"o\"]; m[\"x\"; 1; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 2; \"y\"; 2; \"v\"; \"o\"]; m[\"x\"; 0; \"y\"; 0; \"v\"; \"x\"]; m[\"x\"; 1; \"y\"; 2; \"v\"; \"o\"]; m[\"x\"; 1; \"y\"; 1; \"v\"; \"x\"]; m[\"x\"; 0; \"y\"; 2; \"v\"; \"o\"]]"
 type ExternalMap = [InternalMap]
 type Coord = Int
 data InternalMap = InternalMap  {x :: Coord  
@@ -54,3 +54,7 @@ readInternalMap encodedMap =
 splitIntoEncodedMaps :: String -> [String]
 splitIntoEncodedMaps [] = error "string is empty"
 splitIntoEncodedMaps s = splitOn "m" (drop 3 (filter (/=' ') (s)))
+
+
+
+

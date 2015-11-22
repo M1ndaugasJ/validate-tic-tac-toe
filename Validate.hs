@@ -48,6 +48,6 @@ sortByX (InternalMap x y _) (InternalMap x1 y1 _) = compare x x1
 sortByY (InternalMap x y _) (InternalMap x1 y1 _) = compare y y1
 
 isBoardValid :: Bool
-isBoardValid = if Prelude.length (nub readFullMap) >= 3 
+isBoardValid = if Prelude.length (nub readFullMap) >= 5 
 	then not areAnyCollidedValues && not areAnySuccessiveMoveValuesEqual && isWinnerValid
 	else not areAnyCollidedValues && not areAnySuccessiveMoveValuesEqual
